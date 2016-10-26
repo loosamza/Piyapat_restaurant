@@ -9,11 +9,12 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
     //Explicit
-    private static final String DATABASE_NAME = "Restuarant.db";
+    public static final String DATABASE_NAME = "Restuarant.db";
     private static final int DATABASE_VERSION = 1;
     private static final String CREATE_USER_TABLE = "create table userTABLE " +
             "(_id integer primary key," +
-            "User text, Password text,+" +
+            "User text, " +
+            "Password text," +
             " Name text);";
     private static final String CREATE_FOOD_TABLE = "create table foodTABLE" +
 
