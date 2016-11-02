@@ -1,6 +1,8 @@
 package com.piyapat.piyapat_restaurant;
 
 import android.app.DownloadManager;
+import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.squareup.okhttp.OkHttpClient;
@@ -23,6 +26,8 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     //Explicit
+    private EditText userEditText, passwordEditText;
+    private String userString, passwordString;
     private UserTABLE objUserTABLE;
     private FoodTABLE objFoodTABLE;
     private OrderTABLE objOrderTABLE;
@@ -33,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Blind Widget
+        initWidget();
+
         //Connected SQLite
         connectedSQLite();
 
@@ -46,6 +54,11 @@ public class MainActivity extends AppCompatActivity {
         mySQLite = new MySQLite(this);
 
     }//onCreate
+
+    private void initWidget() {
+        userEditText = (EditText) findViewById(R.id.username_edt);
+        passwordEditText = (EditText) findViewById(R.id.password_edt);
+    }
 
     private void synAndDelete() {
         SQLiteDatabase sqLiteDatabase = openOrCreateDatabase(mySQLiteOpenHelper.DATABASE_NAME,
@@ -63,6 +76,55 @@ public class MainActivity extends AppCompatActivity {
 
 
     }//test
+
+    public void clickSignInMain(View view) {
+
+        userString = userEditText.getText().toString().trim();
+        passwordString = passwordEditText.getText().toString().trim();
+
+        //Check empty
+        if (userString.length() == 0 || passwordString.length() == 0) {
+            //Have empty
+            MyAlert myAlert = new MyAlert();
+            myAlert.myDialog(this, "มีช่องว่าง",
+                    "กรุณากรอกทุกช่อง !!!");
+        } else {
+            //No empty
+            checkUser();
+        }
+
+    }
+
+    private void checkUser() {
+        try {
+            SQLiteDatabase sqLiteDatabase = openOrCreateDatabase(MySQLiteOpenHelper.DATABASE_NAME,
+                    MODE_PRIVATE, null);
+            Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM userTABLE WHERE User = "
+                    + "'" + userString + "'", null);
+            cursor.moveToFirst();
+            String[] resultStirngs = new String[cursor.getColumnCount()];
+            for (int i = 0; i < cursor.getColumnCount(); i++) {
+                resultStirngs[i] = cursor.getString(i);
+            }
+            cursor.close();
+
+            //Check Password
+            if (passwordString.equals(resultStirngs[2])) {
+                Toast.makeText(this, "ยินดีต้อนรับ " + resultStirngs[3], Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), ShopProduct.class);
+                intent.putExtra("Result", resultStirngs);
+                startActivity(intent);
+                finish();
+            } else {
+                MyAlert myAlert = new MyAlert();
+                myAlert.myDialog(this, "Password ผิด", "พิมใหม่ Password ผิด ครับ");
+
+            }
+        } catch (Exception e) {
+            MyAlert myAlert = new MyAlert();
+            myAlert.myDialog(this, "ไม่มี User นี้", "ไม่มี " + userString + " ในฐานข้อมูลของเรา");
+        }
+    }
 
     private void connectedSQLite() {
         objFoodTABLE = new FoodTABLE(this);
