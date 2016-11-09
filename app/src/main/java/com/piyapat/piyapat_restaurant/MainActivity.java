@@ -55,10 +55,15 @@ public class MainActivity extends AppCompatActivity {
 
     }//onCreate
 
+
+
+
     private void initWidget() {
         userEditText = (EditText) findViewById(R.id.username_edt);
         passwordEditText = (EditText) findViewById(R.id.password_edt);
     }
+
+
 
     private void synAndDelete() {
         SQLiteDatabase sqLiteDatabase = openOrCreateDatabase(mySQLiteOpenHelper.DATABASE_NAME,
@@ -93,6 +98,11 @@ public class MainActivity extends AppCompatActivity {
             checkUser();
         }
 
+    }
+
+    public void chickSignUpMain(View view) {
+        Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+        startActivity(intent);
     }
 
     private void checkUser() {
