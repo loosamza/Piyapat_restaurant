@@ -1,5 +1,7 @@
 package com.piyapat.piyapat_restaurant;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -59,18 +61,48 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void upDateValueToServer() {
-        String strURL = "http://csclub.ssru.ac.th/s56122201021/food/add_user.php";
-        OkHttpClient okHttpClient = new OkHttpClient();
-        RequestBody requestBody = new FormEncodingBuilder()
-                .add("isAdd", "true")
-                .add("User", strUsername)
-                .add("Password", strPassword)
-                .add("Name", strName)
-                .build();
-        Request.Builder builder = new Request.Builder();
-        Request request = builder.url(strURL).post(requestBody).build();
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
+
+        new AsyncTask<Void, Void, String>() {
+            String strURL = "http://csclub.ssru.ac.th/s56122201021/food/add_user.php";
+            OkHttpClient okHttpClient = new OkHttpClient();
+            RequestBody requestBody = new FormEncodingBuilder()
+                    .add("isAdd", "true")
+                    .add("User", strUsername)
+                    .add("Password", strPassword)
+                    .add("Name", strName)
+                    .build();
+            Request.Builder builder = new Request.Builder();
+            Request request = builder.url(strURL).post(requestBody).build();
+
+
+            @Override
+            protected String doInBackground(Void... params) {
+                try {
+                    Response response = okHttpClient.newCall(request).execute();
+                    if (response.isSuccessful()) {
+                        return response.body().string();
+                    } else {
+                        return "Not Success - code : " + response.code();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return "Error - " + e.getMessage();
+
+                }
+
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                Toast.makeText(getApplicationContext(), "เพิ่มข้อมูลเรียบร้อย", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        }.execute();
+
+        /*call.enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
 
@@ -86,7 +118,7 @@ public class SignupActivity extends AppCompatActivity {
                 }
 
             }
-        });
+        });*/
 
     }
 
